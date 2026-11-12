@@ -44,6 +44,23 @@ return [
     */
     'public_url' => env('PUBLIC_URL'),
 
+    /*
+    |----------------------------------------------------------------------
+    | Telefono de soporte tecnico
+    |----------------------------------------------------------------------
+    | Es el numero que marca el boton «Llamar a soporte». Se guarda en .env
+    | y NO en el codigo: el repositorio es publico y un telefono de personal
+    | no debe quedar en el historial de Git. Sin numero, el boton no se
+    | muestra, asi que el sistema funciona igual sin esta configuracion.
+    |
+    | SUPPORT_PHONE es el numero local (9 digitos en Peru). El codigo de pais
+    | se antepone para que el marcador abra la llamada completa.
+    */
+    'support' => [
+        'phone' => env('SUPPORT_PHONE'),
+        'country_code' => env('SUPPORT_COUNTRY_CODE', '+51'),
+    ],
+
     // Quien puede reenviar peticiones en nombre de otro. Por defecto, solo
     // el propio equipo: es por donde entra el tunel. Sin esto, todos los
     // docentes llegarian con la IP 127.0.0.1 y los limites antiabuso por

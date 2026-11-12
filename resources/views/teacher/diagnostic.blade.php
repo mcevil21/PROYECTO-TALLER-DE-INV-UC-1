@@ -84,4 +84,13 @@
        class="block text-center text-base text-on-surface-variant underline underline-offset-4">
         Prefiero pedir soporte ahora
     </a>
+
+    {{-- En el diagnostico va discreto, como enlace: un boton grande desde el
+         primer paso invitaria a llamar sin intentar nada, y la tasa de
+         autonomia es justo lo que el piloto mide. En la pantalla de resultado
+         y en la de soporte, donde ya se intento o se decidio pedir ayuda, va
+         como boton. --}}
+    <div class="mt-3">
+        <x-call-support variant="link" />
+    </div>
 @endsection

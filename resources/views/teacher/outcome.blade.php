@@ -41,6 +41,8 @@
         {{ $canContinue ? 'Necesito soporte técnico' : 'No, necesito soporte técnico' }}
     </a>
 
+    <x-call-support />
+
     {{-- Salida intermedia entre "sigo atascado" y "que venga alguien": el
          docente pregunta y el asistente responde con los procedimientos
          cargados. Va discreta a propósito — quien quiere que le resuelvan ya

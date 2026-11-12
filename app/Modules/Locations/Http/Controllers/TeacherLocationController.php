@@ -7,6 +7,7 @@ namespace App\Modules\Locations\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Incidents\Http\Controllers\TeacherIncidentController;
 use App\Modules\Incidents\Services\IncidentService;
+use App\Modules\Locations\Models\Room;
 use App\Modules\Locations\Services\CascadeValidator;
 use App\Modules\Locations\Services\LocationCatalogService;
 use App\Shared\Exceptions\InvalidLocationException;
@@ -43,32 +44,71 @@ class TeacherLocationController extends Controller
     ) {}
 
     /**
-     * Entrada del QR: sede, pabellon, piso y aula en UNA sola pantalla.
+     * Entrada del QR: el docente escribe el codigo de su aula.
      *
-     * POR QUE UNA PANTALLA Y NO CUATRO
+     * POR QUE EL CODIGO Y NO CUATRO LISTAS
      *
-     * El recorrido de cuatro paginas costaba cuatro cargas y cuatro esperas
-     * a alguien que esta de pie con una clase mirandolo. Cada carga es una
-     * oportunidad de abandonar, y el abandono es precisamente lo que el
-     * piloto mide. Aqui las cuatro preguntas viven juntas y cada una aparece
-     * al contestar la anterior: mismo numero de decisiones, una sola espera.
-     *
-     * POR QUE LAS OPCIONES VIAJAN TODAS DE UNA VEZ
-     *
-     * Se envian los 10 pabellones, los 47 pisos y las 212 aulas en el mismo
-     * HTML, y el navegador filtra. La alternativa —pedirle al servidor los
-     * pisos al elegir el pabellon— aniade una ida y vuelta por pregunta en
-     * una red de aula que puede estar saturada, justo cuando algo acaba de
-     * fallar. El catalogo entero pesa menos que una sola foto de las que se
-     * muestran despues.
+     * El codigo esta escrito en la puerta del aula y lo identifica por si
+     * solo: la sede, el pabellon y el piso salen de el. Pedirlos aparte es
+     * hacerle contestar tres preguntas cuya respuesta ya esta en la cuarta.
+     * Mientras escribe aparecen las coincidencias, y al tocar una pasa a la
+     * confirmacion explicita de siempre.
      *
      * SIN DEPENDER DE JAVASCRIPT PARA LO QUE IMPORTA
      *
-     * La validacion de que la cadena sede-pabellon-piso-aula es coherente se
-     * hace en el servidor al continuar. Lo que hace el navegador es filtrar
-     * listas; lo que decide si la ubicacion existe es el servidor.
+     * El formulario envia el codigo a la busqueda del servidor, que ya
+     * existia. Lo que hace el navegador es adelantar las sugerencias; quien
+     * decide si el aula existe sigue siendo el servidor, que revalida toda
+     * la cadena al confirmar.
      */
     public function start(): View|RedirectResponse
+    {
+        if ($this->catalog->sites()->isEmpty()) {
+            return view('teacher.unavailable');
+        }
+
+        // El indice viaja entero en el HTML y el navegador filtra mientras el
+        // docente escribe: es el mismo criterio de la cascada (cero idas y
+        // vueltas al servidor en una red de aula que puede estar saturada).
+        // Solo lleva lo imprescindible para ofrecer y confirmar un aula.
+        $index = $this->catalog->allRooms()
+            ->load('floor.building')
+            ->map(function (Room $room): ?array {
+                $floor = $room->floor;
+                $building = $floor?->building;
+
+                // Un aula sin piso o sin pabellon no se puede confirmar: no se
+                // ofrece, en lugar de ofrecerla y fallar al tocarla.
+                if ($floor === null || $building === null) {
+                    return null;
+                }
+
+                return [
+                    'c' => $room->code,
+                    'p' => $building->name,
+                    'u' => route('teacher.confirm', [
+                        'site' => $building->site_id,
+                        'building' => $building->id,
+                        'floor' => $floor->id,
+                        'room' => $room->id,
+                    ]),
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return view('teacher.start', ['index' => $index]);
+    }
+
+    /**
+     * Elegir el aula paso a paso: sede, pabellon, piso y aula.
+     *
+     * Era la pantalla de inicio. Ahora es la alternativa para quien no sabe
+     * el codigo de su aula. Se conserva entera porque tambien es la red de
+     * seguridad si el navegador del docente no ejecuta el filtrado de la
+     * pantalla de inicio.
+     */
+    public function browse(): View|RedirectResponse
     {
         $sites = $this->catalog->sites();
 

@@ -90,8 +90,8 @@ it('se comporta igual desde cualquier aula', function () {
     $segunda = $this->followingRedirects()->get($this->qr->targetUrl())->getContent();
 
     expect($primera)->toBe($segunda)
-        ->and($primera)->toContain('Piso 1')
-        ->and($primera)->toContain('Piso 2');
+        ->and($primera)->toContain('A101')
+        ->and($primera)->toContain('A201');
 });
 
 it('la pantalla del QR exige permisos de administracion', function () {

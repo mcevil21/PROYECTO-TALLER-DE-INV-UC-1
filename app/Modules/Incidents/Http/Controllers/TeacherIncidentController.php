@@ -84,6 +84,14 @@ class TeacherIncidentController extends Controller
             'category_id.required' => 'Elige el tipo de problema.',
         ]);
 
+        // Si el docente volvio atras con el navegador, o toco el boton dos
+        // veces, la incidencia ya esta en diagnostico. Volver a iniciarla era
+        // una transicion invalida y terminaba en un error 500: se le devuelve
+        // al diagnostico que ya tenia en marcha.
+        if ($incident->statusCode() === S::Diagnosing) {
+            return redirect()->route('teacher.diagnostic');
+        }
+
         $category = IncidentCategory::findOrFail($data['category_id']);
 
         $description = $data['description'] ?? null;

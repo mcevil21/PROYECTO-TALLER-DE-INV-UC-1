@@ -277,7 +277,8 @@ it('la pantalla única lleva dentro todas las opciones', function () {
     // Van todas de una vez y el navegador filtra: pedirle los pisos al
     // servidor al elegir el pabellón añadiría una ida y vuelta por pregunta
     // en la red de un aula que puede estar saturada.
-    $this->get(route('teacher.start'))
+    // Esta es la pantalla paso a paso (/reportar/lista), no la de inicio.
+    $this->get(route('teacher.browse'))
         ->assertOk()
         ->assertSee('Pabellón C')
         ->assertSee('Pabellón G')

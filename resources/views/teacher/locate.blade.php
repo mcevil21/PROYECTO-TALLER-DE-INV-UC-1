@@ -112,7 +112,7 @@
 
 @section('back')
     {{-- Atajo para quien ya sabe su código y no quiere tocar cuatro listas. --}}
-    <a href="{{ route('teacher.search') }}"
+    <a href="{{ route('teacher.start') }}"
        class="block text-center text-base text-on-surface-variant underline underline-offset-4">
         Sé el código de mi aula
     </a>

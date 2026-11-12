@@ -44,7 +44,8 @@ it('pregunta las cuatro cosas en una sola pantalla', function () {
     // Cuatro paginas costaban cuatro cargas y cuatro esperas a alguien de pie
     // con una clase mirandolo. Cada carga es una oportunidad de abandonar, y
     // el abandono es precisamente lo que el piloto mide.
-    $this->get('/reportar')
+    // Es la alternativa a escribir el codigo: vive en /reportar/lista.
+    $this->get(route('teacher.browse'))
         ->assertOk()
         ->assertSee('¿En qué sede estás?')
         ->assertSee('¿En qué pabellón estás?')
@@ -56,7 +57,7 @@ it('con una sola sede no la pregunta: ya viene elegida', function () {
     // Una unica opcion no es una decision. Antes se preguntaba igual, y
     // costaba un toque a alguien con la clase esperando. La sede viaja en el
     // formulario aunque no se vea, asi que el servidor la sigue validando.
-    $this->get('/reportar')
+    $this->get(route('teacher.browse'))
         ->assertOk()
         ->assertSee('data-sede-unica', false)
         ->assertSee('value="'.$this->site->id.'" selected', false);
@@ -67,7 +68,7 @@ it('ofrece todas las sedes cuando hay mas de una', function () {
     // atado a la sede del piloto.
     Site::create(['code' => 'OTRA', 'name' => 'Otra sede', 'is_active' => true]);
 
-    $this->get('/reportar')
+    $this->get(route('teacher.browse'))
         ->assertOk()
         ->assertDontSee('data-sede-unica', false)
         ->assertSee('Huancayo')
@@ -270,4 +271,47 @@ it('resuelve aulas con codigo fuera de nomenclatura', function () {
     ]))
         ->assertOk()
         ->assertSee('LAB-2');
+});
+
+it('la pantalla de inicio pide solo el codigo del aula', function () {
+    // El codigo de la puerta ya identifica sede, pabellon y piso: pedirlos
+    // aparte era contestar tres preguntas cuya respuesta esta en la cuarta.
+    $this->get('/reportar')
+        ->assertOk()
+        ->assertSee('¿En qué aula estás?')
+        ->assertSee('data-room-search', false)
+        ->assertDontSee('¿En qué pabellón estás?')
+        ->assertDontSee('¿En qué piso estás?');
+});
+
+it('la pantalla de inicio lleva el indice de aulas con su enlace de confirmacion', function () {
+    $this->get('/reportar')
+        ->assertOk()
+        ->assertSee('C305')
+        ->assertSee('A101')
+        ->assertSee(route('teacher.confirm', [
+            'site' => $this->site->id,
+            'building' => $this->pabC->id,
+            'floor' => $this->pisoC3->id,
+            'room' => $this->aulaC305->id,
+        ]), false);
+});
+
+it('la pantalla de inicio no ofrece aulas inactivas', function () {
+    Room::create(['floor_id' => $this->pisoC3->id, 'code' => 'Z999', 'criticality' => 1, 'is_active' => false]);
+
+    $this->get('/reportar')
+        ->assertOk()
+        ->assertDontSee('Z999');
+});
+
+it('conserva el recorrido paso a paso como alternativa', function () {
+    $this->get('/reportar')
+        ->assertOk()
+        ->assertSee(route('teacher.browse'), false);
+
+    $this->get(route('teacher.browse'))
+        ->assertOk()
+        ->assertSee('¿En qué pabellón estás?')
+        ->assertSee(route('teacher.start'), false);
 });

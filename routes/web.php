@@ -60,6 +60,9 @@ Route::middleware('throttle:120,1')->group(function () {
     Route::post('/reportar/ubicacion', [TeacherLocationController::class, 'locate'])
         ->name('teacher.locate');
 
+    // Elegir el aula paso a paso: alternativa a escribir el codigo.
+    Route::get('/reportar/lista', [TeacherLocationController::class, 'browse'])->name('teacher.browse');
+
     Route::get('/reportar/sedes', [TeacherLocationController::class, 'sitesStep'])->name('teacher.sites');
     Route::get('/reportar/buscar', [TeacherLocationController::class, 'search'])->name('teacher.search');
 

@@ -39,7 +39,7 @@
 @endsection
 
 @section('back')
-    <a href="{{ route('teacher.start') }}" class="block text-center text-base text-on-surface-variant underline underline-offset-4">
+    <a href="{{ route('teacher.browse') }}" class="block text-center text-base text-on-surface-variant underline underline-offset-4">
         Elegir paso a paso
     </a>
 @endsection

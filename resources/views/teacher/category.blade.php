@@ -3,6 +3,24 @@
 @section('step', $incident->room?->code)
 
 @section('content')
+    @php
+        // Un icono por problema: se reconoce de un vistazo, sin leer la lista
+        // entera. Son iconos de la misma fuente Material que ya usa el resto
+        // del flujo. Manda el campo `icon` de la categoria si alguien lo
+        // rellena; si no, se usa este mapa, y si falta, uno generico.
+        $iconos = [
+            'COMPUTER' => 'desktop_windows',
+            'PROJECTOR' => 'videocam',
+            'HDMI' => 'cast',
+            'PROJECTOR_REMOTE' => 'settings_remote',
+            'SCREEN' => 'tv',
+            'SPEAKER' => 'volume_off',
+            'MOUSE' => 'mouse',
+            'KEYBOARD' => 'keyboard',
+            'OTHER' => 'more_horiz',
+        ];
+    @endphp
+
     <h1 class="mb-4 text-[28px] font-semibold leading-9 tracking-[-0.02em]">¿Qué problema tienes?</h1>
 
     {{-- La IA va ARRIBA y a la vista, con su distintivo dorado: escondida al
@@ -55,7 +73,10 @@
                      menos en la pantalla más usada del sistema. --}}
                 <button type="submit" name="category_id" value="{{ $category->id }}"
                         class="flex min-h-[64px] w-full items-center justify-between gap-3 glass glass-hover focus-ring px-5 py-4 text-left text-lg font-medium text-on-surface transition active:scale-[.99] hover:bg-surface-high">
-                    <span>{{ $category->teacherText() }}</span>
+                    <span class="flex items-center gap-4">
+                        <span aria-hidden="true" class="material-symbols-outlined text-[28px] text-accent">{{ $category->icon ?: ($iconos[$category->code] ?? 'help') }}</span>
+                        <span>{{ $category->teacherText() }}</span>
+                    </span>
                     <span aria-hidden="true" class="text-2xl leading-none text-outline">&rsaquo;</span>
                 </button>
             @endforeach

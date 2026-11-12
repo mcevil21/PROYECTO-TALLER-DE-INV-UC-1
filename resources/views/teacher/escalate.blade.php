@@ -45,6 +45,11 @@
         @endif
     </div>
 
+    {{-- Quien prefiere hablar con alguien ahora no tiene que llenar el formulario. --}}
+    <div class="mb-6">
+        <x-call-support />
+    </div>
+
     <form method="POST" action="{{ route('teacher.escalate.store') }}" enctype="multipart/form-data">
         @csrf
 
